@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+       <!-- these are the arguments you can pass this launch file, for example paused:=true -->
+      <arg name="x" default="0.0"/>
+      <arg name="y" default="0.0"/>
+      <arg name="z" default="0.0"/>
+      <arg name="roll" default = "0.0"/>
+      <arg name="pitch" default = "0.0"/>
+      <arg name="yaw" default = "0.0"/>
+      
+     <rosparam file="$(find turn_table_robot)/config/config.yaml" command="load"/>
+     
+     <include file="$(find gazebo_ros)/launch/empty_world.launch">
+          <arg name="world_name" value="$(find turn_table_robot)/worlds/turn_table.world"/>
+     </include>
+     
+     <!-- Load the URDF into the ROS Parameter Server -->
+     <param name="robot_description" 
+          command="$(find xacro)/xacro --inorder $(find turn_table_robot)/urdf/turn_table.urdf.xacro" />
+          
+     <node name="urdf_spawner" 
+          pkg="gazebo_ros" 
+          type="spawn_model" 
+          respawn="false" 
+          output="screen" 
+          args="-urdf -model turn_table -x $(arg x) -y $(arg y) -z $(arg z) -R $(arg roll) -P $(arg pitch) -Y $(arg yaw) -param robot_description"/>
+          
+     <node name="controller_spawner"
+           pkg="controller_manager"
+           type="spawner"
+           respawn="false"
+           output="screen" ns="/turn_table"
+           args="--namespace=/turn_table joint_position_controller joint_state_controller"/>
+           
+     <node name="robot_state_publisher"
+           pkg="robot_state_publisher"
+           type="robot_state_publisher"
+           respawn="false" output="screen">
+           <remap from="/joint_states" 
+                    to="/turn_table/joint_states" />
+     </node>
+     <node name="rviz" pkg="rviz" type="rviz" args="-d $(find turn_table_robot)/launch/test1.rviz"/>
+</launch>

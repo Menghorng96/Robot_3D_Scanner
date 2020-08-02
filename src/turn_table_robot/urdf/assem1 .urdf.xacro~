@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This URDF was automatically created by SolidWorks to URDF Exporter! Originally created by Stephen Brawner (brawner@gmail.com) 
+     Commit Version: 1.5.1-0-g916b5db  Build Version: 1.5.7152.31018
+     For more information, please see http://wiki.ros.org/sw_urdf_exporter -->
+<robot
+  name="assem1">
+  <link
+    name="base_link">
+    <inertial>
+      <origin
+        xyz="0.0441604612158437 0.0968635466740699 -0.264227315547794"
+        rpy="0 0 0" />
+      <mass
+        value="52.6030282981741" />
+      <inertia
+        ixx="7.85017283445134"
+        ixy="0.132621881700121"
+        ixz="-0.238211170081248"
+        iyy="5.43957275421158"
+        iyz="-2.05136086554764"
+        izz="10.3133869871034" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://turn_table/meshes/base_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://turn_table/meshes/base_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+<!--
+  <link
+    name="Rotation_ling">
+    <inertial>
+      <origin
+        xyz="-0.0014344 -0.005914 0.016181"
+        rpy="0 0 0" />
+      <mass value="4.5471" />
+      <inertia
+        ixx="0.068204"
+        ixy="0.0019006"
+        ixz="-0.0051999"
+        iyy="0.075579"
+        iyz="-0.021439"
+        izz="0.1264" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://Assem1/meshes/Rotation_ling.STL" />
+      </geometry> -->
+    <!--  <material
+        name="">
+       <color
+          rgba="0.79216 0.81961 0.93333 1" />
+      </material>-->
+  <!--  </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://Assem1/meshes/Rotation_ling.STL" />
+      </geometry>
+    </collision>
+  </link>
+ 
+  <joint
+    name="Table_joint"
+    type="revolute">
+    <origin
+      xyz="0 0 0"
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="Rotation_ling" />
+    <axis
+      xyz="0.082974 0.3421 -0.93599" />
+    <limit
+      lower="-3.14"
+      upper="3.14"
+      effort="1000"
+      velocity="0.01" />
+  </joint>-->
+  <!--     GAZEBO RELATED PART     -->
+
+  <!-- ROS Control plugin for Gazebo -->
+<!--<gazebo>
+    <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+      <robotNamespace>/assem1</robotNamespace>
+      <robotSimType>gazebo_ros_control/DefaultRobotHWSim</robotSimType>
+     <legacyModeNS>true</legacyModeNS>
+    </plugin>
+  </gazebo>-->
+
+  <!-- transmission -->
+ <!-- <transmission name="Table_trans">
+    <type>transmission_interface/SimpleTransmission</type>
+    <actuator name="motor1">
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+    <joint name="Table_joint">
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
+    </joint>
+  </transmission>-->
+</robot>
