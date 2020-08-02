@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<robot name="realsense2_camera" xmlns:xacro="http://ros.org/wiki/xacro">
+  <xacro:include filename="$(find sawyer_robot)/urdf/d415_camera.urdf.xacro" />
+
+  <link name="base_link" />
+  <d415_camera parent="base_link">
+    <origin xyz="0 0 1" rpy="0 0 0"/>
+  </d415_camera>
+</robot>

@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<robot name = "camera">
+   <!--Camera d415 link-->
+  <link name = "camera_d415">  
+     <inertial>
+     <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="0.564"/>
+      <inertia ixx="0.003881243" ixy="0.0" 
+               ixz="0.0" iyy="0.000498940" 
+               iyz="0.0" izz="0.003879257"/>
+     </inertial>
+     <visual>
+     <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://sawyer_robot/meshes/d415_camera/d415.stl"/>
+      </geometry>
+      <material name="aluminum"/>
+     </visual>
+  </link>
+</robot>

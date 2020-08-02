@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<launch>
+
+  <!-- these are the arguments you can pass this launch file, for example paused:=true -->
+  <arg name="paused" default="false"/>
+  <arg name="use_sim_time" default="true"/>
+  <arg name="gui" default="true"/>
+  <arg name="headless" default="false"/>
+  <arg name="debug" default="false"/>
+  <arg name="head_display_img" default="$(find sawyer_robot)/share/images/sawyer_sdk_research.png"/>
+
+  <!-- This argument loads the electric gripper, for example electric_gripper:=true -->
+  <arg name="electric_gripper" default="true"/> <!--"flase"-->
+  <!-- This argument loads sawyer's pedestal URDF -->
+  <arg name="pedestal" default="true"/>
+  <!-- This argument fixes the robot statically to the world -->
+  <arg name="static" default="true"/>
+  <!-- This argument dictates whether gazebo should be launched in this file -->
+  <arg name="load_gazebo" default="true"/>
+
+  <arg name="initial_joint_states"
+    default=" -J sawyer::right_j0 -0.27
+              -J sawyer::right_j1 1.05
+              -J sawyer::right_j2 0.00
+              -J sawyer::right_j3 0.49
+              -J sawyer::right_j4 -0.08
+              -J sawyer::right_j5 -0.06
+              -J sawyer::right_j6 0.027
+              -J sawyer::head_pan 0.00"/>
+
+  <param name="img_path_head_display" value="$(arg head_display_img)"/>
+
+  <!-- Load the URDF into the ROS Parameter Server -->
+  <!-- This xacro will pull in sawyer.urdf.xacro, and right_end_effector.urdf.xacro
+       Note: if you set this to false, you MUST have set the robot_description prior
+             to launching sawyer_world -->
+  <param name="robot_description"
+      command="$(find xacro)/xacro --inorder $(find sawyer_robot)/urdf/sawyer_base.urdf.xacro electric_gripper:=true gazebo:=true pedestal:=$(arg pedestal) static:=$(arg static)"  />
+  <rosparam file="$(find sawyer_robot)/config/sawyer_position_control.yaml" command="load"/>
+  <!-- We resume the logic in empty_world.launch, changing the name of the world to be launched -->
+  <include if="$(arg load_gazebo)" file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" 
+         value="$(find sawyer_robot)/worlds/sawyer.world"/>
+    <arg name="debug" value="$(arg debug)" />
+    <arg name="gui" value="$(arg gui)" />
+    <arg name="paused" value="$(arg paused)"/>
+    <arg name="use_sim_time" value="$(arg use_sim_time)"/>
+    <arg name="headless" value="$(arg headless)"/>
+  </include>
+  
+  <node if="$(arg static)" pkg="tf2_ros" type="static_transform_publisher"
+	name="base_to_world" args="0 0 0 0 0 0 1 world base" />
+	
+  <!-- Run a python script to the send a service call to gazebo_ros to spawn a URDF robot -->
+   <node  name="urdf_spawner" 
+          pkg="gazebo_ros" 
+          type="spawn_model" 
+          respawn="false" 
+          output="screen"
+	     args="-param robot_description -urdf -z 0.93 -model sawyer $(arg initial_joint_states)" />
+	     
+    <node name="controller_spawner"
+           pkg="controller_manager"
+           type="spawner"
+           respawn="false"
+           output="screen" ns="/sawyer"
+           args="head_pan_position_controller
+                 right_j0_position_controller 
+                 right_j1_position_controller
+                 right_j2_position_controller
+                 right_j3_position_controller
+                 right_j4_position_controller
+                 right_j5_position_controller
+                 right_j6_position_controller
+                 joint_state_controller"/>
+           
+     <node name="robot_state_publisher"
+           pkg="robot_state_publisher"
+           type="robot_state_publisher"
+           respawn="false" output="screen">
+           <remap from="/joint_states" 
+                    to="/sawyer/joint_states" />
+     </node>
+  <!-- Publish a static transform between the world and the base of the robot -->
+  <node pkg="rosbag" type="play" name="io_robot" 
+        args="-l $(find sawyer_robot)/share/bags/robot_io.bag" />
+ <!-- <node name="rviz" pkg="rviz" type="rviz" args="-d $(find sawyer_robot)/launch/sawyer.rviz"/>-->
+</launch>
