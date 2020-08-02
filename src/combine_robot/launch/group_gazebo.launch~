@@ -1,0 +1,89 @@
+<?xml version="1.0"?>
+<launch>
+     <arg name="x" default="1"/>
+    <arg name="y" default="0"/>
+    <arg name="z" default="0.58"/>
+    <arg name="roll" default = "0"/>
+    <arg name="pitch" default = "0"/>
+    <arg name="yaw" default = "0"/>
+    <!-- these are the arguments you can pass this launch file, for example paused:=true -->
+       <arg name="paused" default="false"/>
+       <arg name="use_sim_time" default="true"/>
+       <arg name="gui" default="true"/>
+       <arg name="headless" default="false"/>
+       <arg name="debug" default="false"/>
+       <arg name="head_display_img" default="$(find sawyer_robot)/share/images/sawyer_sdk_research.png"/>
+
+       <!-- This argument loads the electric gripper, for example electric_gripper:=true -->
+       <arg name="electric_gripper" default="true"/> <!--"flase"-->
+       <!-- This argument loads sawyer's pedestal URDF -->
+       <arg name="pedestal" default="true"/>
+       <!-- This argument fixes the robot statically to the world -->
+       <arg name="static" default="true"/>
+       <!-- This argument dictates whether gazebo should be launched in this file -->
+       <arg name="load_gazebo" default="true"/>
+       
+       <arg name="initial_joint_states"
+    default=" -J sawyer::right_j0 -0.27
+              -J sawyer::right_j1 1.05
+              -J sawyer::right_j2 0.00
+              -J sawyer::right_j3 0.49
+              -J sawyer::right_j4 -0.08
+              -J sawyer::right_j5 -0.06
+              -J sawyer::right_j6 0.027
+              -J sawyer::head_pan 0.00"/>
+       <param name="img_path_head_display" value="$(arg head_display_img)"/>
+     <!--<node if="$(arg static)" pkg="tf2_ros" type="static_transform_publisher"
+	name="base_to_world" args="0 0 0 0 0 0 1 base_link rotation_Link" />-->
+     <include file="$(find gazebo_ros)/launch/empty_world.launch">
+          <arg name="world_name" value="$(find combine_robot)/worlds/robot.world"/>
+	</include>
+	<group ns="sawyer">
+	       <rosparam file="$(find combine_robot)/config/sawyer_position_controller.yaml" command="load"/>
+            <param name="robot_description" command="$(find xacro)/xacro --inorder $(find sawyer_robot)/urdf/sawyer_base.urdf.xacro electric_gripper:=true" />
+           <node name="controller_spawner"
+                pkg="controller_manager"
+                type="spawner"
+                respawn="false"
+                output="screen"
+                args="/sawyer/sawyer/head_pan_position_controller
+                /sawyer/sawyer/right_j0_position_controller 
+                /sawyer/sawyer/right_j1_position_controller
+                /sawyer/sawyer/right_j2_position_controller
+                /sawyer/sawyer/right_j3_position_controller
+                /sawyer/sawyer/right_j4_position_controller
+                /sawyer/sawyer/right_j5_position_controller
+                /sawyer/sawyer/right_j6_position_controller
+                /sawyer/sawyer/joint_state_controller"/>
+           
+          <node name="robot_state_publisher"
+                pkg="robot_state_publisher"
+                type="robot_state_publisher"
+                respawn="false" output="screen">
+                <remap from="/joint_states" 
+                         to="/sawyer/joint_states" />
+          </node>
+     </group>
+     
+     <group ns="turn_table">
+            <rosparam file="$(find combine_robot)/config/turn_table_position_controller.yaml" command="load"/>
+            <param name="robot_description" command="$(find xacro)/xacro --inorder $(find turn_table_robot)/urdf/turn_table.urdf.xacro" />
+            <node name="controller_spawner"
+                pkg="controller_manager"
+                type="spawner"
+                respawn="false"
+                output="screen"
+                args=" /turn_table/turn_table/joint_position_controller /turn_table/turn_table/joint_state_controller"/>   
+                      
+           <node name="robot_state_publisher"
+               pkg="robot_state_publisher" 
+               type="robot_state_publisher" 
+               respawn="false" output="screen">
+               <remap from="/joint_states" 
+                         to="/turn_table/joint_states" />
+           </node>
+     </group>
+     <node name="spawn_sawyer" pkg="gazebo_ros" type="spawn_model" args="-urdf -param /sawyer/robot_description $(arg initial_joint_states) -model sawyer -z 0.93 " respawn="false" output="screen" />
+     <node name="spawn_turn_tabel" pkg="gazebo_ros" type="spawn_model" args="-urdf -param /turn_table/robot_description -model turn_table -x $(arg x) -y $(arg y) -z $(arg z) -R $(arg roll) -P $(arg pitch) -Y $(arg yaw)" respawn="false" output="screen" />
+     
+</launch>

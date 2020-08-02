@@ -1,0 +1,14 @@
+<!-- Spawn the whole environment -->
+<launch>
+
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" value="$(find combine_robot)/worlds/test.world"/>
+    </include>
+
+    <include ns="/sawyer" file="$(find combine_robot)/launch/sawyer_robot.launch"> 
+    </include>
+    
+    <include ns="/turn_table" file="$(find combine_robot)/launch/turn_table.launch">
+    </include>
+   
+</launch>

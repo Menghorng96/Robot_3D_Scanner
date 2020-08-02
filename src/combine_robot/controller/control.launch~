@@ -1,0 +1,22 @@
+<launch>   
+    
+     <rosparam ns = "robot" file="$(find combine_robot)/config/config.yaml" command="load"/>
+     
+     <!-- load the controllers -->
+     <node name="controller_spawner"
+           pkg="controller_manager"
+           type="spawner"
+           respawn="false"
+           output="screen"
+           args="turn_table_robot/joint_position_controller turn_table_robot/joint_state_controller"/>
+           
+     <!-- convert joint states to TF transforms for rviz, etc -->
+     <node ns ="turn_table_robot" name="robot_state_publisher"
+           pkg="robot_state_publisher"
+           type="robot_state_publisher"
+           respawn="false" output="screen">
+           <remap from="robot/joint_states" 
+                    to="robot/turn_table_robot/joint_states" />
+     </node>
+     
+</launch>
